@@ -1,0 +1,5 @@
+DROP INDEX IF EXISTS user_login_idx;
+
+DROP TABLE IF EXISTS "user";
+
+DROP TYPE IF EXISTS gender;
