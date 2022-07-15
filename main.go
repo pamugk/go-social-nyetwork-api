@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 
 	"github.com/pamugk/social-nyetwork-server/internal/app"
 	"github.com/pamugk/social-nyetwork-server/internal/db"
@@ -15,7 +16,7 @@ var (
 )
 
 func main() {
-	db.Setup("postgres://postgres:postgres@localhost:5432/social_nyetwork")
+	db.Setup(os.Getenv("DB_URL"))
 	defer db.Cleanup()
 	app.ConfigureValidation()
 	go rpc.StartServer(grpcPort)
