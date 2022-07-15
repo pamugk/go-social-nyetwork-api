@@ -1,0 +1,345 @@
+openapi: "3.0.3"
+info:
+  description: "Social network server, providing some basic functions"
+  version: "1.0.0"
+  title: "Social Nyetwork"
+tags:
+- name: "user"
+  description: "Operations on user"
+paths:
+  /api/user:
+    get:
+      tags:
+      - "user"
+      summary: "Fetch users"
+      description: "Get list of users, filtered by some parameters"
+      operationId: "searchUsers"
+      parameters:
+      - name: "loginPart"
+        in: "query"
+        description: "Login prefix, that users should be filtered by"
+        required: false
+        example: "u"
+        schema:
+          type: "string"
+      - $ref: "#/components/parameters/pageParam"
+      - $ref: "#/components/parameters/limitParam"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchUserResponse"
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "createUser"
+      requestBody:
+        description: "User's data to use for registration process"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: "Successful operation"
+        "400":
+          description: "Invalid data supplied"
+  /api/user/{id}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by id"
+      description: "Fetch user info"
+      operationId: "getUserByName"
+      parameters:
+      - $ref: "#/components/parameters/idParam"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: "Invalid data supplied"
+        "404":
+          description: "User not found"
+    put:
+      tags:
+      - "user"
+      summary: "Update user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      parameters:
+      - $ref: "#/components/parameters/idParam"
+      requestBody:
+        description: "User's data to be used for update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid data supplied"
+        "404":
+          description: "User not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "Block user's account"
+      operationId: "deleteUser"
+      parameters:
+      - $ref: "#/components/parameters/idParam"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid username supplied"
+        "404":
+          description: "User not found"
+  /api/user/{id}/password:
+    put:
+      tags:
+      - "user"
+      summary: "Change password"
+      description: "Change user's password"
+      operationId: "changePassword"
+      parameters:
+      - $ref: "#/components/parameters/idParam"
+      requestBody:
+        description: "User's data to be used for update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeUserPasswordRequest"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid data supplied"
+        "404":
+          description: "User not found"
+components:
+  schemas:
+    ChangeUserPasswordRequest:
+      type: "object"
+      required:
+        - "NewPassword"
+      properties:
+        NewPassword:
+          type: "string"
+          description: "New user's password"
+          example: "New password, even stronger than before"
+    CreateUserRequest:
+      allOf:
+      - $ref: "#/components/schemas/UserData"
+      - type: "object"
+      required:
+        - "Password"
+      properties:
+        Password:
+          type: "string"
+          description: "User's account password"
+          example: "Some strong password"
+    SearchUserResponse:
+      type: "object"
+      properties:
+        Page:
+          type: "array"
+          items:
+             $ref: "#/components/schemas/ShortUser"
+        PageNumber:
+          type: "integer"
+          example: 0
+        PageSize:
+          type: "integer"
+          example: 150
+        Total:
+          type: "integer"
+          example: 1
+    ShortUser:
+      type: "object"
+      properties:
+        Id:
+          type: "integer"
+          format: "int64"
+          description: "System-wide user id"
+          example: 1
+        Login:
+          type: "string"
+          description: "User's unique username"
+          pattern: "^\\S{1,100}$"
+          maxLength: 100
+          example: "user"
+        Name:
+          type: "string"
+          description: "User's first name"
+          maxLength: 150
+          example: "John"
+        Surname:
+          type: "string"
+          description: "User's second name"
+          maxLength: 200
+          example: "Smith"
+        Patronymic:
+          type: "string"
+          description: "User's patronymic"
+          maxLength: 175
+          example: "ibn Abraham"
+        About:
+          type: "string"
+          description: "Short info, describing user's interests, views, etc."
+          maxLength: 300
+          example: "Some not very interesting info"
+    UpdateUserRequest:
+      allOf:
+      - $ref: "#/components/schemas/UserData"
+    User:
+      allOf:
+      - $ref: "#/components/schemas/ShortUser"
+      - type: "object"
+      properties:
+        Created:
+          type: "string"
+          description: "Date-time of user registration"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{6}[\\+|-]\\d{2}:\\d{2}$"
+          example: "2022-07-14T17:25:18.081273+05:00"
+        Phone:
+          type: "string"
+          description: "User's phone number"
+          maxLength: 20
+          pattern: "^\\d{1,20}$"
+          example: "88005553535"
+        Email:
+          type: "string"
+          description: "User's e-mail"
+          maxLength: 400
+          example: "user@example.com"
+        Birthday:
+          type: "string"
+          description: "User's birthday"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          example: "2000-01-01"
+        Gender:
+          type: "string"
+          description: "User's gender"
+          enum:
+          - "MALE"
+          - "FEMALE"
+          example: "MALE"
+    UserData:
+      type: "object"
+      required:
+        - "Login"
+        - "PreferredLocale"
+        - "Country"
+        - "Name"
+        - "Surname"
+        - "Birthday"
+        - "Gender"
+      properties:
+        Login:
+          type: "string"
+          description: "User's unique username"
+          pattern: "^\\S{1,100}$"
+          maxLength: 100
+          example: "user"
+        PreferredLocale:
+          type: "string"
+          description: "BCP-47-compliant tag of user's preferred language, that should be used by clients"
+          example: "ru-RU"
+          maxLength: 35
+          externalDocs:
+            description: "BCP-47"
+            url: "https://tools.ietf.org/rfc/bcp/bcp47.txt"
+        Country:
+          type: "string"
+          description: "Three-letter code of user's country, corresponding to ISO 3166-1 alpha-3"
+          maxLength: 3
+          example: "RUS"
+          externalDocs:
+            description: "ISO 3166-1:2020"
+            url: "https://www.iso.org/standard/72482.html"
+        Name:
+          type: "string"
+          description: "User's first name"
+          maxLength: 150
+          example: "John"
+        Surname:
+          type: "string"
+          description: "User's second name"
+          maxLength: 200
+          example: "Smith"
+        Patronymic:
+          type: "string"
+          description: "User's patronymic"
+          maxLength: 175
+          example: "ibn Abraham"
+        About:
+          type: "string"
+          description: "Short info, describing user's interests, views, etc."
+          maxLength: 300
+          example: "Some not very interesting info"
+        Phone:
+          type: "string"
+          description: "User's phone number"
+          maxLength: 20
+          pattern: "^\\d{1,20}$"
+          example: "88005553535"
+        Email:
+          type: "string"
+          description: "User's e-mail"
+          maxLength: 400
+          example: "user@example.com"
+        Birthday:
+          type: "string"
+          description: "User's birthday"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          example: "2000-01-01"
+        Gender:
+          type: "string"
+          description: "User's gender"
+          enum:
+          - "MALE"
+          - "FEMALE"
+          example: "MALE"
+  parameters:
+    idParam:
+      name: "id"
+      in: "path"
+      description: "The id of an entity"
+      required: true
+      schema:
+        type: "integer"
+        format: "int64"
+    limitParam:
+      name: "limit"
+      in: "query"
+      description: "Max number of requested entities"
+      required: false
+      example: 1
+      schema:
+        type: "integer"
+        format: "int32"
+    pageParam:
+      name: "page"
+      in: "query"
+      description: "Page number of requested entities"
+      required: false
+      example: 100
+      schema:
+        type: "integer"
+        format: "int32"
+externalDocs:
+  description: "Find out more about project"
+  url: "https://github.com/pamugk/go-social-nyetwork"

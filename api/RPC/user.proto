@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+option go_package = "github.com/pamugk/social-nyetwork-server/internal/infrastructure/rpc;rpc";
+
+import "google/type/date.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+    rpc CreateUser(CreateUserRequest) returns (google.protobuf.Empty) {}
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+    rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse) {}
+    rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty) {}
+    rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {}
+    rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {}
+}
+
+enum Gender {
+    MALE = 0;
+    FEMALE = 1;
+}
+
+message UserData {
+    string login = 1;
+    string preferred_locale = 2;
+    string country = 3;
+    string name = 4;
+    string surname = 5;
+    string patronymic = 6;
+    string phone = 7;
+    string email = 8;
+    string about = 9;
+    google.type.Date birthday = 10;
+    Gender gender = 11;
+}
+
+message CreateUserRequest {
+    UserData user = 1;
+    string password = 2;
+}
+
+message GetUserRequest {
+    int64 id = 1;
+}
+
+message GetUserResponse {
+    int64 id = 1;
+    string login = 2;
+    google.protobuf.Timestamp created = 3;
+    string name = 4;
+    string surname = 5;
+    string patronymic = 6;
+    string about = 7;
+    string phone = 8;
+    string email = 9;
+    google.type.Date birthday = 10;
+    Gender gender = 11;
+}
+
+message SearchUsersRequest {
+    string login_part = 1;
+    int32 page = 2;
+    int32 limit = 3;
+}
+
+message ShortUser {
+    int64 id = 1;
+    string login = 2;
+    string name = 3;
+    string surname = 4;
+    string patronymic = 5;
+    string about = 6;
+}
+
+message SearchUsersResponse {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    int64 total = 3;
+    repeated ShortUser page = 4;
+}
+
+message UpdateUserRequest {
+    int64 id = 1;
+    UserData data = 2;
+}
+
+message ChangePasswordRequest {
+    int64 id = 1;
+    string new_password = 2;
+}
+
+message DeleteUserRequest {
+    int64 id = 1;
+}
