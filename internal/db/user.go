@@ -43,9 +43,17 @@ func SearchUsers(loginPart string, page int32, limit int32) ([]domain.ShortUser,
 	users := []domain.ShortUser{}
 	var total int64
 	var rows pgx.Rows
-	var err error
+	noFilter := loginPart == ""
 
-	if loginPart == "" {
+	tx, err := StartTransaction()
+	
+	if err != nil {
+		return users, total, err
+	}
+	
+	defer FinishTransaction(tx, err)
+	
+	if noFilter {
 		rows, err = pool.Query(context.Background(), "SELECT id, login, \"name\", surname, patronymic, about FROM \"user\" WHERE active ORDER BY id LIMIT $1 OFFSET $2", limit, page*limit)
 	} else {
 		rows, err = pool.Query(context.Background(), "SELECT id, login, \"name\", surname, patronymic, about FROM \"user\" WHERE login ILIKE $1 AND active ORDER BY id LIMIT $2 OFFSET $3", loginPart+"%", limit, page*limit)
@@ -54,6 +62,15 @@ func SearchUsers(loginPart string, page int32, limit int32) ([]domain.ShortUser,
 	if err == pgx.ErrNoRows {
 		err = nil
 	} else if err == nil {
+		var countResult pgx.Row
+		if noFilter {
+			countResult = pool.QueryRow(context.Background(), "SELECT COUNT(*) FROM \"user\" WHERE active")
+		} else {
+			countResult = pool.QueryRow(context.Background(), "SELECT COUNT(*) FROM \"user\" WHERE login ILIKE $1 AND active", loginPart+"%")
+		}
+		
+		_ = countResult.Scan(&total)
+		
 		for rows.Next() {
 			user := domain.ShortUser{}
 			if rows.Scan(&user.Id, &user.Login, &user.Name, &user.Surname, &user.Patronymic, &user.About) == nil {
