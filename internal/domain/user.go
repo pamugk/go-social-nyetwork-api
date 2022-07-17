@@ -16,7 +16,7 @@ type UserData struct {
 	Name            string    `validate:"required,max=150"`
 	Surname         string    `validate:"required,max=200"`
 	Patronymic      *string   `validate:"omitempty,max=175"`
-	Phone           *string   `validate:"omitempty,numeric,max=20"`
+	Phone           *string   `validate:"omitempty,e164"`
 	Email           *string   `validate:"omitempty,email,max=400"`
 	About           *string   `validate:"omitempty,max=300"`
 	Birthday        time.Time `validate:"required,not_future"`

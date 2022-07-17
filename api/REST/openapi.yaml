@@ -217,9 +217,12 @@ components:
         Phone:
           type: "string"
           description: "User's phone number"
-          maxLength: 20
-          pattern: "^\\d{1,20}$"
-          example: "88005553535"
+          maxLength: 16
+          pattern: "^\\+[1-9]?\\d{7,14}$"
+          example: "+78005553535"
+          externalDocs:
+            description: "E.164"
+            url: "https://www.itu.int/rec/T-REC-E.164"
         Email:
           type: "string"
           description: "User's e-mail"
@@ -292,10 +295,13 @@ components:
           example: "Some not very interesting info"
         Phone:
           type: "string"
-          description: "User's phone number"
-          maxLength: 20
-          pattern: "^\\d{1,20}$"
-          example: "88005553535"
+          description: "User's phone , compliant to E.164 standard"
+          maxLength: 16
+          pattern: "^\\+[1-9]?\\d{7,14}$"
+          example: "+78005553535"
+          externalDocs:
+            description: "E.164"
+            url: "https://www.itu.int/rec/T-REC-E.164"
         Email:
           type: "string"
           description: "User's e-mail"

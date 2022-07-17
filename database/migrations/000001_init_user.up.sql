@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS "user"(
     birthday DATE NOT NULL,
     gender gender NOT NULL,
     country CHAR(3) NOT NULL,
-    phone VARCHAR(20),
+    phone VARCHAR(16),
     email VARCHAR(400),
     about VARCHAR(300)
 );
